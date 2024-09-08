@@ -5,35 +5,76 @@ import { db } from "./data/db";
 
 function App() {
   //aqui declaro los State
+  // STATE, serecomiendan aqui arriba los hooks
   const [data, setData] = useState(db);
   const [cart, setCart] = useState([]);
 
-  // // STATE, serecomiendan aqui arriba los hooks
-  // const [auth, setAuth]= useState(false)
-  // const [total, setTotal]= useState(0)
-  // const [cart, setCart]= useState([])
+  const Max_Items = 5;
+  const Min_Items = 1;
 
-  // useEffect(()=>{
-  //     if(auth){
-  //         console.log('Auntenticado');
-  //     }
-  // },[auth])
-
-  // setTimeout(() => {
-  //     setAuth(true)
-  // }, 3000);
-
+  //funcion para agregar a carrito
   function addToCart(item) {
+    const itemExists = cart.findIndex((guitar) => guitar.id === item.id);
+    if (itemExists >= 0) {
+      //existe en el carrito
+      if(cart[itemExists].quantity >= Max_Items) return
+      const updatedCart = [...cart];
+      updatedCart[itemExists].quantity++;
+      setCart(updatedCart);
+    } else {
+      item.quantity = 1;
+      setCart([...cart, item]);
+    }
+  }
 
-    const itemExists = cart.findIndex((guitar)=>guitar.id === item.id)
+  //funcion para Incrementar cantidades en carrito
+  function increaseQuantity(id) {
+    const updatedCart = cart.map((item) => {
+      if (item.id === id && item.quantity < Max_Items) {
+        return {
+          ...item,
+          quantity: item.quantity + 1,
+        };
+      }
+      return item;
+    });
+    setCart(updatedCart);
+  }
 
-    
-    setCart(prevCart => [...prevCart, item])
+  //funcion para decrementar cantidades en carrito
+  function decreaseQuantity(id) {
+    const updateCart = cart.map((item) => {
+      if (item.id === id && item.quantity > Min_Items) {
+        return {
+          ...item,
+          quantity: item.quantity - 1,
+        };
+      }
+      return item;
+    });
+    setCart(updateCart);
+  }
+
+  //funcion para eliminar de carrito
+  function removeFromCart(id) {
+    setCart((prevCart) => prevCart.filter((guitar) => guitar.id !== id));
+  }
+
+  //funcion para Vaciar el carrito 
+  function clearCart(){
+    setCart([])
   }
 
   return (
+    //con esto paso las funciones a otros componentes
     <>
-      <Header />
+      <Header
+        cart={cart}
+        removeFromCart={removeFromCart}
+        increaseQuantity={increaseQuantity}
+        decreaseQuantity={decreaseQuantity}
+        clearCart = {clearCart}
+      />
 
       <main className="container-xl mt-5">
         <h2 className="text-center">Nuestra Colección</h2>
