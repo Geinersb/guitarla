@@ -6,11 +6,22 @@ import { db } from "./data/db";
 function App() {
   //aqui declaro los State
   // STATE, serecomiendan aqui arriba los hooks
+  //con esto  valida si hay algo en el local storage para mantenerlo y si no deja el estate en vacio
+const initialCart = ()=>{
+  const localStorageCart = localStorage.getItem('cart')
+  return localStorageCart ? JSON.parse(localStorageCart) : []
+}
+
   const [data, setData] = useState(db);
-  const [cart, setCart] = useState([]);
+  const [cart, setCart] = useState(initialCart);
 
   const Max_Items = 5;
   const Min_Items = 1;
+
+  //con esto se ingresa al carrito en el local Storage, con el useefect cada vez que encuentra un cambio lo guarda en el localstorage
+  useEffect(()=>{
+    localStorage.setItem('cart', JSON.stringify(cart) )
+  },[cart])
 
   //funcion para agregar a carrito
   function addToCart(item) {
@@ -25,6 +36,8 @@ function App() {
       item.quantity = 1;
       setCart([...cart, item]);
     }
+
+  
   }
 
   //funcion para Incrementar cantidades en carrito
@@ -64,6 +77,9 @@ function App() {
   function clearCart(){
     setCart([])
   }
+
+
+
 
   return (
     //con esto paso las funciones a otros componentes
